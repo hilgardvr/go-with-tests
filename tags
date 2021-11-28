@@ -1,0 +1,22 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+Hello	hello/hello.go	/^func Hello(name string, language string) string {$/;"	f
+dutch	hello/hello.go	/^const dutch = "Dutch"$/;"	c
+dutchHelloPrefix	hello/hello.go	/^const dutchHelloPrefix = "Hallo, "$/;"	c
+englishHelloPrefix	hello/hello.go	/^const englishHelloPrefix = "Hello, "$/;"	c
+french	hello/hello.go	/^const french = "French"$/;"	c
+frenchHelloPrefix	hello/hello.go	/^const frenchHelloPrefix = "Bonjour, "$/;"	c
+greetingPrefix	hello/hello.go	/^func greetingPrefix(language string) (prefix string) {$/;"	f
+integers	integers/adder.go	/^package integers$/;"	p
+integers	integers/adder_test.go	/^package integers$/;"	p
+main	hello/hello.go	/^package main$/;"	p
+main	hello/hello_test.go	/^package main$/;"	p
+main	main.go	/^func main() {$/;"	f
+main	main.go	/^package main$/;"	p
+spanish	hello/hello.go	/^const spanish = "Spanish"$/;"	c
+spanishHelloPrefix	hello/hello.go	/^const spanishHelloPrefix = "Hola, "$/;"	c
+world	hello/hello.go	/^const world = "World"$/;"	c
