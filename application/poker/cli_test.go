@@ -10,14 +10,21 @@ import (
 )
 
 type SpyBlindAlerter struct {
-	alerts []struct{
-		scheduledAt time.Duration
-		amount int
-	}
+	alerts []scheduledAlert
 }
 
-func (s *SpyBlindAlerter) ScheduledAlertAt(duration time.Duration, amount int) {
-	s.alerts = append(s.alerts, struct{scheduledAt time.Duration; amount int}{duration, amount})
+
+type scheduledAlert struct {
+	at time.Duration
+	amount int
+}
+
+func (s scheduledAlert) String() string {
+	return fmt.Sprintf("%d chips at %v", s.amount, s.at)
+}
+
+func (s *SpyBlindAlerter) ScheduledAlertAt(at time.Duration, amount int) {
+	s.alerts = append(s.alerts, scheduledAlert{at, amount})
 }
 
 func TestCli(t *testing.T) {
@@ -43,10 +50,7 @@ func TestCli(t *testing.T) {
 		cli := poker.NewCli(playerStore, in, blindAlerter)
 		cli.PlayPoker()
 
-		cases := []struct{
-			expectedScheduledTime time.Duration
-			expectedAmount int
-		}{
+		cases := []scheduledAlert{
 			{0 * time.Second, 100},
 			{10 * time.Minute, 200},
 			{20 * time.Minute, 300},
@@ -61,23 +65,26 @@ func TestCli(t *testing.T) {
 		}
 
 		for i, c := range cases {
-			t.Run(fmt.Sprintf("%d scheduled for %v", c.expectedAmount, c.expectedScheduledTime), func(t *testing.T) {
+			t.Run(fmt.Sprint(c), func(t *testing.T) {
 				if len(blindAlerter.alerts) <= 1 {
 					t.Fatalf("alert %d was not scheduled %v", i, blindAlerter.alerts)
 				}
 			})
 
-			alert := blindAlerter.alerts[i]
-
-			amountGot := alert.amount
-			if amountGot != c.expectedAmount {
-				t.Errorf("got amount %d, want %d", amountGot, c.expectedAmount)
-			}
-
-			gotScheduledTime := alert.scheduledAt
-			if gotScheduledTime != c.expectedScheduledTime {
-				t.Errorf("got scheduled time %v, want %v", gotScheduledTime, c.expectedScheduledTime)
-			}
+			got := blindAlerter.alerts[i]
+			assertScheduledAlert(t, got, c)
 		}
 	})
+}
+
+func assertScheduledAlert(t testing.TB, got scheduledAlert, want scheduledAlert) {
+		amountGot := got.amount
+		if amountGot != want.amount {
+			t.Errorf("got amount %d, want %d", amountGot, want.amount)
+		}
+
+		gotScheduledTime := got.at
+		if gotScheduledTime != want.at {
+			t.Errorf("got scheduled time %v, want %v", gotScheduledTime, want.at)
+		}
 }
