@@ -11,19 +11,24 @@ import (
 
 const PlayerPrompt = "Please enter the number of players: "
 
-type Game struct {
+type Game interface {
+	Start(numberOfPlayers int)
+	Finish(winner string)
+}
+
+type TexasHoldem struct {
 	alerter BlindAlerter
 	store PlayerStore
 }
 
-func NewGame(alerter BlindAlerter, store PlayerStore) *Game {
-	return &Game{
+func NewGame(alerter BlindAlerter, store PlayerStore) Game {
+	return &TexasHoldem{
 		alerter: alerter,
 		store: store,
 	}
 }
 
-func (p *Game) Start(numberOfPlayers int) {
+func (p TexasHoldem) Start(numberOfPlayers int) {
 	blindIncrement := time.Duration(5 + numberOfPlayers) * time.Minute
 	blinds := []int{100, 200, 300, 400, 500, 600, 800, 1000, 2000, 4000, 8000} 
 	blindTime := 0 * time.Second
@@ -33,14 +38,14 @@ func (p *Game) Start(numberOfPlayers int) {
 	}
 }
 
-func (g *Game) Finish(winner string) {
+func (g TexasHoldem) Finish(winner string) {
 	g.store.RecordWin(winner)
 }
 
 type Cli struct {
 	in *bufio.Scanner 
 	out io.Writer
-	game *Game
+	game Game
 }
 
 func (cli *Cli)PlayPoker() {
@@ -53,7 +58,7 @@ func (cli *Cli)PlayPoker() {
 	cli.game.Finish(winner)
 }
 
-func NewCli(in io.Reader, out io.Writer, game *Game) *Cli {
+func NewCli(in io.Reader, out io.Writer, game Game) *Cli {
 	return &Cli{
 		in: bufio.NewScanner(in),
 		out: out,
