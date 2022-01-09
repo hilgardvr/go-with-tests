@@ -10,3 +10,5 @@ require (
 	golang.org/x/tools v0.1.7 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 )
+
+require github.com/gorilla/websocket v1.4.2 // indirect

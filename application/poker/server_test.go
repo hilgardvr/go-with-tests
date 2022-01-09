@@ -9,7 +9,11 @@ import (
 	"net/http/httptest"
 	"os"
 	"reflect"
+	"strings"
 	"testing"
+	"time"
+
+	"github.com/gorilla/websocket"
 )
 
 
@@ -235,6 +239,32 @@ func TestRecordingWinsAndRetrievingThem(t *testing.T) {
 	})
 }
 
+func TestGame(t *testing.T) {
+	t.Run("GET /game returns 200", func(t *testing.T) {
+		server := NewPlayerServer(&StubPlayerStore{})
+		request := newGameRequest()
+		response := httptest.NewRecorder()
+		server.ServeHTTP(response, request)
+		AssertStatus(t, response.Code, http.StatusOK)
+	})
+	t.Run("when we get a message over websocket it is the winner of the game", func(t *testing.T) {
+		store := &StubPlayerStore{}
+		winner := "Ruth"
+		server := httptest.NewServer(NewPlayerServer(store))
+		defer server.Close()
+		wsUrl := "ws" + strings.TrimPrefix(server.URL, "http") + "/ws"
+		ws, _, err := websocket.DefaultDialer.Dial(wsUrl, nil)
+		if err != nil {
+			t.Fatalf("could not open websocket connection on %s %v", wsUrl, err)
+		}
+		defer ws.Close()
+		if err := ws.WriteMessage(websocket.TextMessage, []byte(winner)); err != nil {
+			t.Fatalf("could not send message over websocket connection %v", err)
+		}
+		time.Sleep(10 * time.Millisecond)
+		AssertPlayerWins(t, store, winner)
+	})
+}
 func getPostWinRequest(name string) *http.Request {
 	req, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("/players/%s", name), nil)
 	return req
@@ -257,4 +287,9 @@ func createTempFile(t testing.TB, initialData string) (*os.File, func()) {
 		os.Remove(tmpFile.Name())
 	}
 	return tmpFile, removeFile
+}
+
+func newGameRequest() *http.Request {
+	request, _ := http.NewRequest(http.MethodGet, "/game", nil)
+	return request
 }
